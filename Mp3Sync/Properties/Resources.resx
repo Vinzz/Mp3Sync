@@ -1,0 +1,198 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="copiedFiles" xml:space="preserve">
+    <value>
+{0} files were copied on player</value>
+  </data>
+  <data name="copyFile" xml:space="preserve">
+    <value>{0} copy {1}{2}</value>
+  </data>
+  <data name="destFull" xml:space="preserve">
+    <value>Destination {0} is full{1}</value>
+  </data>
+  <data name="dstCapacity" xml:space="preserve">
+    <value>Destinations capacity is {0} Mb</value>
+  </data>
+  <data name="dstCount" xml:space="preserve">
+    <value>{0} files in destination</value>
+  </data>
+  <data name="errorNoDelete" xml:space="preserve">
+    <value>Can't delete {0} check if it's not read only
+{1}</value>
+  </data>
+  <data name="errorNoPlace" xml:space="preserve">
+    <value>
+The following files were not copied on the player (lack of place):</value>
+  </data>
+  <data name="extradel" xml:space="preserve">
+    <value>extra files will deleted</value>
+  </data>
+  <data name="extraFilesDest" xml:space="preserve">
+    <value>extra files will be copied to {0}</value>
+  </data>
+  <data name="freeSpace" xml:space="preserve">
+    <value>Predicted free space on destination {0}{1}Mb</value>
+  </data>
+  <data name="hashToDo" xml:space="preserve">
+    <value>{0} hashs to compute, please wait</value>
+  </data>
+  <data name="hashWIP" xml:space="preserve">
+    <value>{0}/{1} files processed</value>
+  </data>
+  <data name="readCache" xml:space="preserve">
+    <value>Read cache for {0}</value>
+  </data>
+  <data name="removedFiles" xml:space="preserve">
+    <value>{0} extra or out of date files removed from player</value>
+  </data>
+  <data name="srcCount" xml:space="preserve">
+    <value>{0} files in source</value>
+  </data>
+  <data name="srcWeight" xml:space="preserve">
+    <value>Source weights {0} Mb</value>
+  </data>
+  <data name="Step1" xml:space="preserve">
+    <value>Step 1/3 -- Compute hash for files</value>
+  </data>
+  <data name="Step2" xml:space="preserve">
+    <value>
+Step 2/3 -- Remove extra files from destination
+</value>
+  </data>
+  <data name="Step3" xml:space="preserve">
+    <value>
+Step 3/3 -- Add new Files to destination
+</value>
+  </data>
+  <data name="synchroOK" xml:space="preserve">
+    <value>
+Player synchronized.</value>
+  </data>
+  <data name="warnduplicate" xml:space="preserve">
+    <value>File {0} already present in the collection\nas file: {1}</value>
+  </data>
+  <data name="warnLackPlace" xml:space="preserve">
+    <value>All files won't be copied on the player, lack of place</value>
+  </data>
+  <data name="warnNocache" xml:space="preserve">
+    <value>No cache file found for {0} please be patient,
+reconstructing is going to take a while</value>
+  </data>
+</root>

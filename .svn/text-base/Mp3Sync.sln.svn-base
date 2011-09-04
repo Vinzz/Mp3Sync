@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual C# Express 2005
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mp3Sync", "Mp3Sync\Mp3Sync.csproj", "{04BC382C-A71B-40C3-9AF9-3FFB6CA047E2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleInterface", "ConsoleInterface\ConsoleInterface.csproj", "{D27B4BE2-D709-44C1-80DB-9C452E1439D8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{04BC382C-A71B-40C3-9AF9-3FFB6CA047E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{04BC382C-A71B-40C3-9AF9-3FFB6CA047E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{04BC382C-A71B-40C3-9AF9-3FFB6CA047E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{04BC382C-A71B-40C3-9AF9-3FFB6CA047E2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D27B4BE2-D709-44C1-80DB-9C452E1439D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D27B4BE2-D709-44C1-80DB-9C452E1439D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D27B4BE2-D709-44C1-80DB-9C452E1439D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D27B4BE2-D709-44C1-80DB-9C452E1439D8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
