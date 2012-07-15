@@ -36,15 +36,19 @@ namespace Mp3Sync
             set { _stExt = value; }
         }
 
+        public string AutoSync { get; set; }
+
         public Mp3SyncSettings()
         {
             _stExt = ".mp3|.jpg";
+            AutoSync = "folder.jpg";
 
             Dests = new List<string>();
         }
 
         public Mp3SyncSettings(bool createDummyInputs)
         {
+            AutoSync = "folder.jpg";
             StExt = ".mp3|.jpg";
             Dests = new List<string>();
             DestBin = @"c:\MusicRemovedFromPlayer";

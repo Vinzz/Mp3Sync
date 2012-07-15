@@ -48,6 +48,9 @@ namespace ConsoleInterface
                                 case "ext":
                                     settings.StExt = args[++i];
                                     break;
+                                case "auto":
+                                    settings.AutoSync = args[++i];
+                                    break;
                                 default:
                                     throw new ArgumentException("Unknown option: " + args[i]);
                             }
@@ -116,14 +119,15 @@ namespace ConsoleInterface
 * Any out of date file in the destination will be updated.
 
 Syntax:
-    Mp3Sync.exe -s SourcePath -d1 DestinationPath1 -d2 DestinationPath2 [-dbin DestinationBin] [-ext ExtensionString]
+    Mp3Sync.exe -s SourcePath -d1 DestinationPath1 -d2 DestinationPath2 [-dbin DestinationBin] [-ext ExtensionString] [-auto AutoSync]
 
 SourcePath:     Path of the source to synchronize with
 DestinationPath1:   Path of the destination 1 (player music dir)
 DestinationPath2 (optional):    Path of the destination 2 (player sd card music dir)
 DestinationBin (optional):  Were to put files found on the player, but not in the source. 
                             If not provided, extra or out of date files will be deleted.
-ExtensionString (optional): Pipe separated extensions of the files to synchronize. if not provided, "".mp3|.jpg"" will be used.
+ExtensionString (optional): Pipe separated extensions of the files to synchronize. if not provided, "".mp3"" will be used.
+AutoSync in split folders (optional): name of a file to duplicate if a folder happens to be duplicated. If not provided ""folder.jpg"" will be used.
 
 - or -
 

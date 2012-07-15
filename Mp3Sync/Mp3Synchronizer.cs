@@ -108,10 +108,11 @@ namespace Mp3Sync
 
                 Console.WriteLine(Resources.Step3);
 
-                //Add new files
+                //Add new files in dest
                 long count = 0;
                 foreach (string target in inputs.Dests)
-                    count += AddInDest(new DirectoryInfo(target), srcMap, dstMap);
+                    count += AddInDest(new DirectoryInfo(target), srcMap, dstMap, inputs.AutoSync);
+                //end of Add
 
                 Console.WriteLine(String.Format(Resources.copiedFiles, count));
 
@@ -187,7 +188,7 @@ namespace Mp3Sync
             }
         }
 
-        private static int AddInDest(DirectoryInfo dTarget, Dictionary<string, FileInfo> srcMap, Dictionary<string, FileInfo> dstMap)
+        private static int AddInDest(DirectoryInfo dTarget, Dictionary<string, FileInfo> srcMap, Dictionary<string, FileInfo> dstMap, string autoSyncFileName)
         {
             try
             {
@@ -226,25 +227,22 @@ namespace Mp3Sync
                             fill += " ";
                         longest = Value.Name.Length;
 
-                        //Keep 10Mo free, unless it's a folder.jpg file
-                        //But make sure the list is ordered jpg last
-                        if ((dTargetInfo.AvailableFreeSpace > ((Value.Length + 10000000))) || Value.Extension == ".jpg")
+                        //Keep 10Mo free
+                        if ((dTargetInfo.AvailableFreeSpace > ((Value.Length + 10000000))))
                         {
-                            if (dTargetInfo.AvailableFreeSpace < ((Value.Length + 10000000)))
-                                Console.Write("less than 10 Mo but copy folder.jpg anyway: " + Value.FullName);
-
                             string destName = Path.Combine(dTarget.FullName, Value.Directory.Name);
+
+                            FileInfo jpegFile = null;
+                            if(File.Exists(Path.Combine(Value.Directory.FullName,autoSyncFileName)))
+                                jpegFile = new FileInfo(Path.Combine(Value.Directory.FullName,autoSyncFileName));
 
                             if (!Directory.Exists(destName))
                                 Directory.CreateDirectory(destName);
 
-                            if (Value.Extension == ".jpg" && new DirectoryInfo(destName).GetFiles().Where(x => x.Extension == ".mp3").Count() == 0)
-                            {
-                                Console.Write("no mp3 file in destination  " + destName + " so skip the folder.jpg");
-                                continue;
-                            }
-
+                            string jpegName = Path.Combine(destName, autoSyncFileName);
                             destName = Path.Combine(destName, Value.Name);
+
+
 
                             ++schonIndex;
 
@@ -252,6 +250,11 @@ namespace Mp3Sync
                             Console.Write(String.Format(Resources.copyFile, _stSchon[schonIndex % _stSchon.Length].ToString(), Value.Name, fill));
 
                             Value.CopyTo(destName);
+
+                            // Copy the autosync file no matter what
+                            if (!File.Exists(jpegName))
+                                jpegFile.CopyTo(jpegName);
+
                             ++count;
 
                             stRemove.Push(Key);
@@ -286,8 +289,6 @@ namespace Mp3Sync
             try
             {
                 DateTime cacheDate = DateTime.MinValue;
-                //Stopwatch stopw = new Stopwatch();
-                //stopw.Start();
 
                 Dictionary<string, string> srcCache = new Dictionary<string, string>();
 
@@ -387,12 +388,6 @@ namespace Mp3Sync
                 }
                 sw.Close();
 
-                //Sort the mp3 files first
-                src = src.OrderByDescending(x => x.Value.Extension == ".mp3").ToDictionary(x => x.Key, x => x.Value);
-
-                //Console.WriteLine("{0} SHA1 hashs processed in {1}", Hash.SHA1processed, Hash.SHA1sw.Elapsed.ToString());
-                //stopw.Stop();
-                //Console.WriteLine("Total indexing time: {0}", stopw.Elapsed.ToString());
                 Console.WriteLine();
                 return TotalInterestSize;
             }
@@ -410,7 +405,7 @@ namespace Mp3Sync
                 sw.WriteLine(hash + '|' + fileInfo.FullName);
             }
             else
-                if (!fileInfo.Extension.Contains("jpg") && (fileInfo.FullName != src[hash].FullName))
+                if (fileInfo.FullName != src[hash].FullName)
                 {
                     Console.WriteLine(String.Format(Resources.warnduplicate, fileInfo.FullName, src[hash].FullName));
                 }
