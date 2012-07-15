@@ -10,6 +10,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
+using Mp3Sync;
+using System.Xml.Serialization;
 
 namespace ConsoleInterface
 {
@@ -23,62 +25,63 @@ namespace ConsoleInterface
                     PrintUsage();
                 else
                 {
-                    String source = String.Empty;
-                    String dest1 = String.Empty;
-                    String dest2 = String.Empty;
-                    String destBin = null;
-                    String stExt = ".mp3|.jpg";
+                    Mp3SyncSettings settings = new Mp3SyncSettings();
+ 
 
                     #region args
-                    for (int i = 0; i < args.Length; ++i)
+                    if (args.Length > 1)
                     {
+                        for (int i = 0; i < args.Length; ++i)
+                        {
                             switch (args[i])
                             {
                                 case "-s":
-                                    source = args[++i];
+                                    settings.Source = args[++i];
                                     break;
                                 case "-d1":
-                                    dest1 = args[++i];
-                                    break;
                                 case "-d2":
-                                    dest2 = args[++i];
+                                    settings.Dests.Add(args[++i]);
                                     break;
                                 case "-dbin":
-                                    destBin = args[++i];
+                                    settings.DestBin = args[++i];
                                     break;
                                 case "ext":
-                                    stExt = args[++i];
+                                    settings.StExt = args[++i];
                                     break;
                                 default:
                                     throw new ArgumentException("Unknown option: " + args[i]);
-                            }   
+                            }
+                        }
                     }
-                    
-
-                    Stack<DirectoryInfo> targets = new Stack<DirectoryInfo>();
-
-                    if(Directory.Exists(dest1))
-                        targets.Push(new DirectoryInfo(dest1));
-                    else 
-                        throw new ArgumentException("can't find dest dir: " + dest1);
-
-                     if(Directory.Exists(dest2))
-                         targets.Push(new DirectoryInfo(dest2));
                     else
-                         throw new ArgumentException("can't find dest dir: " + dest2);
+                    {
+                        if ((Path.GetExtension(args[0]) == ".xml") && File.Exists(args[0]))
+                        {
+                            using (StreamReader sr = new StreamReader(args[0], true))
+                            {
+                                XmlSerializer s = new XmlSerializer(typeof(Mp3SyncSettings));
+                                settings = (Mp3SyncSettings)(s.Deserialize(sr));
+                            }
+                        }
+                        else
+                            throw new Exception("Could not process the xml input " + args[0]);
+                    }
 
-                    if(!Directory.Exists(source))
-                        throw new ArgumentException("can't find source dir: " + source);
+                    PersistSettings(settings);
 
-                    if ( (destBin != null) && (!Directory.Exists(destBin)))
-                        throw new ArgumentException("can't find destination Bin1 dir: " + destBin);
+                    foreach(string dir in settings.Dests)
+                        if (!Directory.Exists(dir))
+                            throw new ArgumentException("can't find dest dir: " + dir);
 
+                    if (!Directory.Exists(settings.Source))
+                        throw new ArgumentException("can't find source dir: " + settings.Source);
+
+                    if ((settings.DestBin != null) && (!Directory.Exists(settings.DestBin)))
+                        throw new ArgumentException("can't find destination Bin dir: " + settings.DestBin);
                     #endregion
 
-                    Mp3Sync.Mp3Synchronizer.synchronize(new DirectoryInfo(source),
-                                                        targets,
-                                                        destBin == null ? null : new DirectoryInfo(destBin),
-                                                        stExt);
+                    Mp3Sync.Mp3Synchronizer.synchronize(settings);
+
                     Console.WriteLine("Process over - Press any key");
                     Console.ReadKey();
                 }
@@ -87,10 +90,21 @@ namespace ConsoleInterface
             {
                 Console.WriteLine("\n-- Error --");
                 Console.WriteLine(e.Message);
+#if DEBUG
                 Console.WriteLine(e.StackTrace);
-                Console.WriteLine("Process over - Press any key");
+#endif
+                Console.WriteLine("\nProcess over - Press any key");
                 Console.ReadKey();
             }
+        }
+
+        private static void PersistSettings(Mp3SyncSettings settings)
+        {
+            //Persist curr settings
+            XmlSerializer s = new XmlSerializer(typeof(Mp3SyncSettings));
+            System.IO.TextWriter xw = new System.IO.StreamWriter(@"Mp3SyncInputs.xml", false, System.Text.Encoding.UTF8);
+            s.Serialize(xw, settings);
+            xw.Close();
         }
 
         private static void PrintUsage()
@@ -111,9 +125,18 @@ DestinationBin (optional):  Were to put files found on the player, but not in th
                             If not provided, extra or out of date files will be deleted.
 ExtensionString (optional): Pipe separated extensions of the files to synchronize. if not provided, "".mp3|.jpg"" will be used.
 
+- or -
+
+Mp3Sync.exe Inputs.xml
+
+Provided you filled the Mp3SyncInputs.xml file just created.
+
 Licensed under the GPL - 2010 Yocto Projects - Vincent Tollu
 
 Press any key.");
+
+            PersistSettings(new Mp3SyncSettings(true));
+
 Console.ReadKey();
         }
     }

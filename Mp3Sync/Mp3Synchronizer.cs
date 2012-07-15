@@ -14,13 +14,14 @@ using System.Security.Cryptography;
 using System.Xml.Serialization;
 using System.Diagnostics;
 using Mp3Sync.Properties;
+using System.Linq;
 
 namespace Mp3Sync
 {
     public static class Mp3Synchronizer
     {
         //Add Target2 + mode
-        public static void synchronize(DirectoryInfo dSource, Stack<DirectoryInfo> dTargets, DirectoryInfo dBinTarget, string stExtensions)
+        public static void synchronize(Mp3SyncSettings inputs)
         {
             try
             {
@@ -30,39 +31,40 @@ namespace Mp3Sync
                 long srcCapacity = 0;
 
                 Console.WriteLine(Resources.Step1);
-                Console.WriteLine();    
+                Console.WriteLine();
 
-                srcCapacity += SearchForInterestFiles(dSource, srcMap, stExtensions);
-                Console.WriteLine(String.Format(Resources.srcCount,srcMap.Count));
-                Console.WriteLine(); 
+                srcCapacity += SearchForInterestFiles(new DirectoryInfo(inputs.Source), srcMap, inputs.StExt);
+                Console.WriteLine(String.Format(Resources.srcCount, srcMap.Count));
+                Console.WriteLine();
 
                 Dictionary<string, FileInfo> dstMap = new Dictionary<string, FileInfo>();
 
                 long destCapacity = 0;
-                foreach (DirectoryInfo target in dTargets)
+                foreach (string starget in inputs.Dests)
                 {
+                    DirectoryInfo target = new DirectoryInfo(starget);
                     DriveInfo dTargetInfo = new DriveInfo(target.FullName.Substring(0, 1));
                     destCapacity += dTargetInfo.AvailableFreeSpace;
 
-                    destCapacity += SearchForInterestFiles(target, dstMap, stExtensions);
+                    destCapacity += SearchForInterestFiles(target, dstMap, inputs.StExt);
 
                     destCapacity -= 10000000; //10Mo kept free per unit
                 }
                 Console.WriteLine(String.Format(Resources.dstCount, dstMap.Count));
-                Console.WriteLine(); 
-                Console.WriteLine(String.Format(Resources.srcWeight,srcCapacity / 1000000));
-                Console.WriteLine(String.Format(Resources.dstCapacity,destCapacity / 1000000));
-                Console.WriteLine(); 
+                Console.WriteLine();
+                Console.WriteLine(String.Format(Resources.srcWeight, srcCapacity / 1000000));
+                Console.WriteLine(String.Format(Resources.dstCapacity, destCapacity / 1000000));
+                Console.WriteLine();
                 long free = destCapacity - srcCapacity;
 
-                Console.WriteLine(String.Format(Resources.freeSpace,((free>0)?"+":""),free / 1000000));
+                Console.WriteLine(String.Format(Resources.freeSpace, ((free > 0) ? "+" : ""), free / 1000000));
 
                 if (free < 0)
                     Console.WriteLine(Resources.warnLackPlace);
 
                 Console.WriteLine(Resources.Step2);
-                if (dBinTarget != null)
-                    Console.WriteLine(String.Format(Resources.extraFilesDest,dBinTarget.FullName));
+                if (inputs.DestBin != null)
+                    Console.WriteLine(String.Format(Resources.extraFilesDest, inputs.DestBin));
                 else
                     Console.WriteLine(Resources.extradel);
 
@@ -71,9 +73,9 @@ namespace Mp3Sync
                 {
                     if (!srcMap.ContainsKey(kvp.Key))
                     {
-                        if (dBinTarget != null)
+                        if (inputs.DestBin != null)
                         {
-                            string destName = Path.Combine(dBinTarget.FullName, kvp.Value.Directory.Name);
+                            string destName = Path.Combine(inputs.DestBin, kvp.Value.Directory.Name);
 
                             if (!Directory.Exists(destName))
                                 Directory.CreateDirectory(destName);
@@ -92,24 +94,24 @@ namespace Mp3Sync
                             }
                             catch (Exception e)
                             {
-                                throw new Exception(String.Format(Resources.errorNoDelete,kvp.Value.FullName,e.ToString()));
+                                throw new Exception(String.Format(Resources.errorNoDelete, kvp.Value.FullName, e.ToString()));
                             }
                         }
                         ++iCountSnip;
                     }
                 }
-                Console.WriteLine(String.Format(Resources.removedFiles,iCountSnip));
+                Console.WriteLine(String.Format(Resources.removedFiles, iCountSnip));
 
                 //Snip empty directories
-                foreach (DirectoryInfo target in dTargets)
-                    SnipVoidDir(target);
+                foreach (string target in inputs.Dests)
+                    SnipVoidDir(new DirectoryInfo(target));
 
                 Console.WriteLine(Resources.Step3);
 
                 //Add new files
                 long count = 0;
-                foreach (DirectoryInfo target in dTargets)
-                    count += AddInDest(target, srcMap, dstMap);
+                foreach (string target in inputs.Dests)
+                    count += AddInDest(new DirectoryInfo(target), srcMap, dstMap);
 
                 Console.WriteLine(String.Format(Resources.copiedFiles, count));
 
@@ -119,7 +121,7 @@ namespace Mp3Sync
 
                     foreach (KeyValuePair<string, FileInfo> kvp in srcMap)
                     {
-                        Console.WriteLine(Path.Combine(Path.GetDirectoryName(kvp.Value.FullName),kvp.Value.Name));
+                        Console.WriteLine(Path.Combine(Path.GetDirectoryName(kvp.Value.FullName), kvp.Value.Name));
                     }
                 }
                 else
@@ -147,7 +149,7 @@ namespace Mp3Sync
             }
             catch (Exception)
             {
-                
+
                 throw;
             }
         }
@@ -209,7 +211,7 @@ namespace Mp3Sync
 
                 int currTop = Console.CursorTop;
                 int longest = 0;
-                for(int i = 0; i < srcMap.Count; ++i)
+                for (int i = 0; i < srcMap.Count; ++i)
                 {
                     string Key = Keys[i];
                     FileInfo Value = Values[i];
@@ -224,25 +226,35 @@ namespace Mp3Sync
                             fill += " ";
                         longest = Value.Name.Length;
 
-                        //Keep 10Mo free
-                        if (dTargetInfo.AvailableFreeSpace > ((Value.Length + 10000000)))
+                        //Keep 10Mo free, unless it's a folder.jpg file
+                        //But make sure the list is ordered jpg last
+                        if ((dTargetInfo.AvailableFreeSpace > ((Value.Length + 10000000))) || Value.Extension == ".jpg")
                         {
-                                string destName = Path.Combine(dTarget.FullName, Value.Directory.Name);
+                            if (dTargetInfo.AvailableFreeSpace < ((Value.Length + 10000000)))
+                                Console.Write("less than 10 Mo but copy folder.jpg anyway: " + Value.FullName);
 
-                                if (!Directory.Exists(destName))
-                                    Directory.CreateDirectory(destName);
+                            string destName = Path.Combine(dTarget.FullName, Value.Directory.Name);
 
-                                destName = Path.Combine(destName, Value.Name);
+                            if (!Directory.Exists(destName))
+                                Directory.CreateDirectory(destName);
 
-                                ++schonIndex;
+                            if (Value.Extension == ".jpg" && new DirectoryInfo(destName).GetFiles().Where(x => x.Extension == ".mp3").Count() == 0)
+                            {
+                                Console.Write("no mp3 file in destination  " + destName + " so skip the folder.jpg");
+                                continue;
+                            }
 
-                                Console.SetCursorPosition(0, currTop);
-                                Console.Write(String.Format(Resources.copyFile,_stSchon[schonIndex % _stSchon.Length].ToString(),Value.Name,fill));  
-                                
-                                Value.CopyTo(destName);
-                                ++count;
+                            destName = Path.Combine(destName, Value.Name);
 
-                                stRemove.Push(Key);
+                            ++schonIndex;
+
+                            Console.SetCursorPosition(0, currTop);
+                            Console.Write(String.Format(Resources.copyFile, _stSchon[schonIndex % _stSchon.Length].ToString(), Value.Name, fill));
+
+                            Value.CopyTo(destName);
+                            ++count;
+
+                            stRemove.Push(Key);
                         }
                         else
                         {
@@ -274,12 +286,14 @@ namespace Mp3Sync
             try
             {
                 DateTime cacheDate = DateTime.MinValue;
+                //Stopwatch stopw = new Stopwatch();
+                //stopw.Start();
 
                 Dictionary<string, string> srcCache = new Dictionary<string, string>();
 
                 System.Collections.Stack stackDirs = new System.Collections.Stack();
 
-                string stCachePath = Path.Combine(Path.GetTempPath(),dSrcDir.FullName.Replace('\\', '_').Replace(':','_'));
+                string stCachePath = Path.Combine(@".\", dSrcDir.FullName.Replace('\\', '_').Replace(':', '_'));
 
                 int cursorLeft = 0;
                 if (File.Exists(stCachePath))
@@ -308,7 +322,7 @@ namespace Mp3Sync
                         cacheDate = f.LastWriteTimeUtc;
                 }
                 else
-                    Console.WriteLine(String.Format(Resources.warnNocache,dSrcDir.FullName));
+                    Console.WriteLine(String.Format(Resources.warnNocache, dSrcDir.FullName));
 
                 StreamWriter sw = new StreamWriter(stCachePath);
 
@@ -335,8 +349,8 @@ namespace Mp3Sync
                             }
                             else
                                 staHashToCompute.Push(fileInfo);
-   
-                            
+
+
                             TotalInterestSize += fileInfo.Length;
 
                             {
@@ -354,8 +368,8 @@ namespace Mp3Sync
 
                 //Process not cached hashs
                 Console.WriteLine();
-                 if(staHashToCompute.Count > 10)
-                    Console.Write(String.Format(Resources.hashToDo,staHashToCompute.Count) + " ");
+                if (staHashToCompute.Count > 10)
+                    Console.Write(String.Format(Resources.hashToDo, staHashToCompute.Count) + " ");
                 cursorLeft = Console.CursorLeft;
 
                 int done = 0;
@@ -364,17 +378,23 @@ namespace Mp3Sync
                     ++done;
                     Console.CursorLeft = cursorLeft;
                     Console.Write(_stSchon[done % _stSchon.Length].ToString());
-                    if(staHashToCompute.Count > 10)
-                        if(done % (staHashToCompute.Count / 10) == 0)
+                    if (staHashToCompute.Count > 10)
+                        if (done % (staHashToCompute.Count / 10) == 0)
                             Console.Write(" " + String.Format(Resources.hashWIP, done, staHashToCompute.Count));
-                    string hash = GetMD5HashFromFile(fi.FullName);
+
+                    string hash = Hash.GetSAH1HashFromFile(fi.FullName);
                     AddInSrc(src, fi, hash, sw);
                 }
                 sw.Close();
 
+                //Sort the mp3 files first
+                src = src.OrderByDescending(x => x.Value.Extension == ".mp3").ToDictionary(x => x.Key, x => x.Value);
+
+                //Console.WriteLine("{0} SHA1 hashs processed in {1}", Hash.SHA1processed, Hash.SHA1sw.Elapsed.ToString());
                 //stopw.Stop();
+                //Console.WriteLine("Total indexing time: {0}", stopw.Elapsed.ToString());
                 Console.WriteLine();
-                return TotalInterestSize; 
+                return TotalInterestSize;
             }
             catch (Exception)
             {
@@ -397,31 +417,5 @@ namespace Mp3Sync
         }
 
         private static char[] _stSchon = new char[] { '-', '\\', '|', '/' };
-
-
-        private static MD5 md5 = new MD5CryptoServiceProvider();
-
-        private static string GetMD5HashFromFile(string fileName)
-        {
-            try
-            {
-                FileStream file = new FileStream(fileName, FileMode.Open);
-                byte[] retVal = md5.ComputeHash(file);
-                file.Close();
-
-                StringBuilder sb = new StringBuilder();
-                for (int i = 0; i < retVal.Length; i++)
-                {
-                    sb.Append(retVal[i].ToString("x2"));
-                }
-                return sb.ToString();
-            }
-            catch (Exception)
-            {
-                
-                throw;
-            }
-        }
-
     }
 }
