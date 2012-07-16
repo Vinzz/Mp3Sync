@@ -252,7 +252,7 @@ namespace Mp3Sync
                             Value.CopyTo(destName);
 
                             // Copy the autosync file no matter what
-                            if (!File.Exists(jpegName))
+                            if (!File.Exists(jpegName) && jpegFile != null)
                                 jpegFile.CopyTo(jpegName);
 
                             ++count;
