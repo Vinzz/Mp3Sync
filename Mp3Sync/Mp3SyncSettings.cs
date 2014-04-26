@@ -40,7 +40,7 @@ namespace Mp3Sync
 
         public Mp3SyncSettings()
         {
-            _stExt = ".mp3|.jpg";
+            _stExt = ".mp3";
             AutoSync = "folder.jpg";
 
             Dests = new List<string>();

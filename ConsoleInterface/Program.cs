@@ -58,7 +58,7 @@ namespace ConsoleInterface
                     }
                     else
                     {
-                        if ((Path.GetExtension(args[0]) == ".xml") && File.Exists(args[0]))
+                        if (File.Exists(args[0]) && (Path.GetExtension(args[0]) == ".xml"))
                         {
                             using (StreamReader sr = new StreamReader(args[0], true))
                             {
@@ -67,7 +67,10 @@ namespace ConsoleInterface
                             }
                         }
                         else
-                            throw new Exception("Could not process the xml input " + args[0]);
+                        {
+                            PersistSettings(new Mp3SyncSettings(true));
+                            throw new Exception("Could not process the xml input " + args[0] + " see the generated Mp3SyncInputs.xml input file");
+                        }
                     }
 
                     PersistSettings(settings);
@@ -103,11 +106,14 @@ namespace ConsoleInterface
 
         private static void PersistSettings(Mp3SyncSettings settings)
         {
-            //Persist curr settings
-            XmlSerializer s = new XmlSerializer(typeof(Mp3SyncSettings));
-            System.IO.TextWriter xw = new System.IO.StreamWriter(@"Mp3SyncInputs.xml", false, System.Text.Encoding.UTF8);
-            s.Serialize(xw, settings);
-            xw.Close();
+            if (!File.Exists(@"Mp3SyncInputs.xml"))
+            {
+                //Persist curr settings
+                XmlSerializer s = new XmlSerializer(typeof(Mp3SyncSettings));
+                System.IO.TextWriter xw = new System.IO.StreamWriter(@"Mp3SyncInputs.xml", false, System.Text.Encoding.UTF8);
+                s.Serialize(xw, settings);
+                xw.Close();
+            }
         }
 
         private static void PrintUsage()
